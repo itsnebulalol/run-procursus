@@ -44,14 +44,14 @@ jobs:
           fi
 
       - name: Upload build_base
-        if: steps.information.outputs.build-base-exists == "true"
+        if: steps.information.outputs.build-base-exists == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: build_base
           path: build_base/*
 
       - name: Upload build_dist
-        if: steps.information.outputs.build-dist-exists == "true"
+        if: steps.information.outputs.build-dist-exists == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: build_dist
