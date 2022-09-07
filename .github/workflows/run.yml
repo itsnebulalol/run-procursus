@@ -26,7 +26,7 @@ jobs:
 
       - name: Run script
         run: |
-          make ${{ github.event.inputs.command }}
+          gmake ${{ github.event.inputs.command }}
 
       - name: Get info
         id: information
