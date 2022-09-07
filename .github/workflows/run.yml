@@ -20,7 +20,7 @@ jobs:
       - name: Set up Procursus
         uses: beerpiss/procursus-action@v1
         with:
-          packages: clang dsymutil odcctools autoconf automake autopoint bash bison cmake curl docbook-xml docbook-xsl fakeroot findutils flex gawk git gnupg groff gzip ldid libtool make ncurses-bin openssl patch pkg-config po4a python3 sed tar triehash xz-utils zstd
+          packages: clang odcctools autoconf automake autopoint bash bison cmake curl docbook-xml docbook-xsl fakeroot findutils flex gawk git gnupg groff gzip ldid libtool make ncurses-bin openssl patch pkg-config po4a python3 sed tar triehash xz-utils zstd
           cache: true
           mirror: 'https://procursus.itsnebula.net/'
 
