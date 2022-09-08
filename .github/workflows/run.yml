@@ -26,7 +26,8 @@ jobs:
 
       - name: Run script
         run: |
-          gmake ${{ github.event.inputs.command }}
+          ls
+          /opt/procursus/bin/make ${{ github.event.inputs.command }}
 
       - name: Get info
         id: information
