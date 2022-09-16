@@ -7,10 +7,12 @@ on:
         description: "Args to pass to make (ex. nano-package MEMO_TARGET=iphoneos-arm64-rootless MEMO_CFVER=1800)"
         required: true
 
+env:
+  BUILD_ROOT: "${{ github.workspace }}"
+
 jobs:
   run:
     runs-on: macos-12
-
     steps:
       - name: Checkout Procursus
         uses: actions/checkout@v3
@@ -26,8 +28,7 @@ jobs:
 
       - name: Run script
         run: |
-          ls
-          /opt/procursus/bin/make ${{ github.event.inputs.command }}
+          gmake ${{ github.event.inputs.command }} BUILD_ROOT="$BUILD_ROOT"
 
       - name: Get info
         id: information
