@@ -3,35 +3,61 @@ name: Run Procursus
 on:
   workflow_dispatch:
     inputs:
-      command:
-        description: "Args to pass to make (ex. nano-package MEMO_TARGET=iphoneos-arm64-rootless MEMO_CFVER=1800)"
+      rule:
+        description: "Rule to pass to make (e.g nano-package)"
         required: true
-
-env:
-  BUILD_ROOT: "${{ github.workspace }}"
+      target:
+        description: "Target to build for (e.g iphoneos-arm64)"
+        required: false
+        default: "iphoneos-arm64"
+      cfver:
+        description: "iOS version to build for (e.g 1800 for iOS 15)"
+        required: false
+        default: "1700"
+      source:
+        description: "Specific Procursus repository (e.g ProcursusTeam/Procursus)"
+        required: false
+        default: "ProcursusTeam/Procursus"
+      branch:
+        description: "Branch in source to checkout"
+        required: false
+        default: "main"
+      upload-base:
+        description: "Upload existant build_base"
+        required: false
+        default: "false"
+      upload-dist:
+        description: "Upload existant build_dist"
+        required: false
+        default: "true"
 
 jobs:
-  run:
-    runs-on: macos-12
+  run-procursus:
+    name: Run ${{ github.event.inputs.rule }}
+    runs-on: macos-latest
     steps:
-      - name: Checkout Procursus
+      - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository: ProcursusTeam/Procursus
+          repository: "${{ github.event.inputs.source }}"
+          ref: "${{ github.event.inputs.branch }}"
 
-      - name: Set up Procursus
+      - name: Setup Procursus
         uses: beerpiss/procursus-action@v1
         with:
-          packages: clang odcctools autoconf automake autopoint bash bison cmake curl docbook-xml docbook-xsl fakeroot findutils flex gawk git gnupg groff gzip ldid libtool make ncurses-bin openssl patch pkg-config po4a python3 sed tar triehash xz-utils zstd
+          packages: odcctools autoconf automake autopoint bash bison cmake curl docbook-xml docbook-xsl fakeroot findutils flex gawk git gnupg groff grep gzip ldid ld64 libtool make ncurses-bin openssl patch pkg-config po4a python3 sed tar triehash xz-utils zstd
           cache: true
           mirror: 'https://procursus.itsnebula.net/'
 
-      - name: Run script
+      - name: Build
         run: |
-          gmake ${{ github.event.inputs.command }} BUILD_ROOT="$BUILD_ROOT"
+          gmake ${{ github.event.inputs.rule }} \
+            MEMO_TARGET=${{ github.event.inputs.target }} \
+            MEMO_CFVER=${{ github.event.inputs.cfver }} \
+            BUILD_ROOT="${{ github.workspace }}" NO_PGP=1
 
-      - name: Get info
-        id: information
+      - name: Check for build_{base,dist}
+        id: info
         run: |
           if [ -d "build_base" ]; then
               echo "::set-output name=build-base-exists::true"
@@ -46,15 +72,15 @@ jobs:
           fi
 
       - name: Upload build_base
-        if: steps.information.outputs.build-base-exists == 'true'
+        if: steps.info.outputs.build-base-exists == 'true' && github.event.inputs.upload-base == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: build_base
-          path: build_base/*
+          path: build_base/
 
       - name: Upload build_dist
-        if: steps.information.outputs.build-dist-exists == 'true'
+        if: steps.info.outputs.build-dist-exists == 'true' && github.event.inputs.upload-dist == 'true'
         uses: actions/upload-artifact@v3
         with:
           name: build_dist
-          path: build_dist/*
+          path: build_dist/
